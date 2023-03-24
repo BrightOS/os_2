@@ -65,7 +65,7 @@ fun main() {
     }
 
 //    println(ticks)
-    println("Efficiency: ${"%.${2}f".format(((1 - numberOfWaitTicks.toFloat() / numberOfAbstractTicks) * 100))}%")
+    println("Efficiency: ${"%.${2}f".format(((1 - numberOfWaitTicks.toFloat() / numberOfAbstractTicks) * 100))}% | With quantum time: $QUANTUM_TIME")
 }
 
 data class Process(

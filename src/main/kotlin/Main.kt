@@ -1,5 +1,7 @@
 import java.io.File
 
+const val QUANTUM_TIME = 2
+
 fun parseInputFile(file: File): Pair<ArrayList<Process>, Int> {
     var resultNumberOfTicks = 0
     val list = arrayListOf<Process>().apply {
@@ -8,7 +10,8 @@ fun parseInputFile(file: File): Pair<ArrayList<Process>, Int> {
                 add(
                     Process(
                         name = it[0],
-                        numberOfTicks = it[1].toInt()
+                        numberOfTicks = it[1].toInt(),
+                        priority = it[2].toInt()
                     ).let {
                         resultNumberOfTicks += it.numberOfTicks
                         it
@@ -31,21 +34,25 @@ fun main() {
     ).let {
         numberOfActualTicks = it.second
         it.first
+    }.apply {
+        sortBy { it.priority }
     }
 
     val ticks = arrayListOf<String>()
     repeat(numberOfActualTicks) {
-        processList.forEach { process ->
+        processList.sortedByDescending { it.priority }.forEach { process ->
             if (process.ticksLeft > 0) {
-                process.ticksLeft--
-                ticks.add(process.name)
+                repeat(minOf(QUANTUM_TIME, process.ticksLeft)) {
+                    process.ticksLeft--
+                    ticks.add(process.name)
+                }
             }
         }
     }
 
     processList.forEach { process ->
         print(
-            "${process.name} ${process.numberOfTicks} "
+            "${process.name} ${process.priority} ${process.numberOfTicks} "
         )
         ticks.subList(0, ticks.indexOfLast { it.contains(process.name) } + 1).forEach {
             print(it.contains(process.name).let {
@@ -58,11 +65,12 @@ fun main() {
     }
 
 //    println(ticks)
-    println("Efficiency: ${"%.${2}f".format((numberOfWaitTicks.toFloat() / numberOfAbstractTicks * 100))}%")
+    println("Efficiency: ${"%.${2}f".format(((1 - numberOfWaitTicks.toFloat() / numberOfAbstractTicks) * 100))}%")
 }
 
 data class Process(
     val name: String,
     val numberOfTicks: Int,
+    val priority: Int,
     var ticksLeft: Int = numberOfTicks
 )
